@@ -1,10 +1,16 @@
 const browserObject = require('./browser')
-const { scrapeBooksFn, scrapePnaNewsFn, scrapeRapplerNewsFn } = require('./page-controller')
+const scrapeController = require('./controller')
+const {
+  booksContext,
+  philippineNewsAgencyContext,
+  rapplerContext,
+} = require('./contexts')
 
-//Start the browser and create a browser instance
 let browserInstance = browserObject.startBrowser()
+const url = "https://www.rappler.com/search?q=ridesharing"
 
-// Pass the browser instance to the scraper controller
-// scrapeBooksFn(browserInstance)
-// scrapePnaNewsFn(browserInstance)
-scrapeRapplerNewsFn(browserInstance)
+scrapeController({
+  url,
+  browserInstance,
+  context: rapplerContext,
+})
