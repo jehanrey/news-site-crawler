@@ -7,12 +7,14 @@ async function inquirerScraper ({
   await page.waitForSelector("#___gcse_2")
 
   let pagePromise = (link) => new Promise(async (resolve, _reject) => {
+    let skip = false
     let dataObj = {}
     let newPage = await browser.newPage()
+    console.log(`navigating to ${link}...`)
     await newPage.goto(link)
 
-    dataObj["title"] = await newPage.$eval(".art-head-group div#bc-share + h1.entry-title", (text) => text.textContent)
-    dataObj["date"] = await newPage.$eval(".page-header .byline_share div#art_plat", (text) => text.textContent)
+    dataObj["title"] = await newPage.$eval("#art-head-group hgroup > h1.entry-title", (text) => text.textContent).catch(() => skip = true)
+    dataObj["date"] = await newPage.$eval("#art-head-group #byline_share div#art_plat", (text) => text.textContent).catch(() => skip = true)
     // dataObj["snippet"] = await newPage.$eval(".page-content > p", (text) => {
     //   return text.textContent.split('--')[1] ? text.textContent.split('--')[1].trim() : text.textContent.split('--')[0].trim()
     // }).catch(async () => {
@@ -31,7 +33,7 @@ async function inquirerScraper ({
     //   return contents.join(' ')
     // })
 
-    resolve(dataObj)
+    resolve(skip ? undefined : dataObj)
     counter = counter + 1
 
     await newPage.close()
