@@ -4,14 +4,13 @@ async function rapplerScraper ({
   counter,
   scrapedData,
 }) {
-  let count = counter
   await page.waitForSelector('div[data-testid="wrapper"]')
 
   let pagePromise = (link) => new Promise(async (resolve, _reject) => {
     let dataObj = {}
     let newPage = await browser.newPage()
     await newPage.goto(link)
-    
+
     dataObj["title"] = await newPage.$eval(".copy-block > h1", (text) => text.textContent).catch(() => '')
     dataObj["date"] = await newPage.$eval(".time-header > time", (text) => text.textContent).catch(() => '')
     dataObj["snippet"] = await newPage.$eval('div[class*="ArticleBodyWrapper"] .excerpt p.summary', (text) => {
@@ -23,7 +22,7 @@ async function rapplerScraper ({
     }).catch(() => '')
 
     resolve(dataObj)
-    count = count + 1
+    counter = counter + 1
 
     await newPage.close()
   })
@@ -43,7 +42,7 @@ async function rapplerScraper ({
     return rapplerScraper({
       browser,
       page,
-      counter: count,
+      counter,
       scrapedData,
     })
   }
@@ -59,7 +58,11 @@ async function rapplerScraper ({
   }
 
   await page.close()
-  return scrapedData
+
+  return {
+    data: scrapedData,
+    count: counter,
+  }
 }
 
 module.exports = rapplerScraper

@@ -33,7 +33,7 @@ async function philippineNewsAgencyScraper ({
 
     resolve(dataObj)
     counter = counter + 1
-    
+
     await newPage.close()
   })
 
@@ -65,10 +65,13 @@ async function philippineNewsAgencyScraper ({
       scrapedData,
     })
   }
-  
+
   await page.close()
 
-  return scrapedData
+  return {
+    data: scrapedData,
+    count: counter,
+  }
 }
 
 module.exports = philippineNewsAgencyScraper

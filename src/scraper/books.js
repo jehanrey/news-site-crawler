@@ -69,7 +69,10 @@ async function booksScraper({
 
   await page.close()
 
-  return scrapedData
+  return {
+    data: scrapedData,
+    count: counter,
+  }
 }
 
 module.exports = booksScraper

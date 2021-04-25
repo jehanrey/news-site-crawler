@@ -1,4 +1,5 @@
 const booksScraper = require('./books')
+const inquirerScraper = require('./inquirer')
 const philippineNewsAgencyScraper = require('./philippine-news-agency')
 const rapplerScraper = require('./rappler')
 
@@ -6,6 +7,7 @@ const scraperMap = {
   'books': booksScraper,
   'philippine-news-agency': philippineNewsAgencyScraper,
   'rappler': rapplerScraper,
+  'inquirer': inquirerScraper
 }
 
 const scraper = async ({
@@ -28,10 +30,10 @@ const scraper = async ({
     scrapedData,
   }
 
-  let data = await scraperFn(scraperProps)
-  
+  let { data, count } = await scraperFn(scraperProps)
+
   console.log(data)
-  console.log(`count: ${counter}`)
+  console.log(`count: ${count}`)
 
   return data
 }
