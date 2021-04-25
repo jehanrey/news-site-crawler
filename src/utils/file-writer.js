@@ -1,7 +1,9 @@
 const fs = require('fs')
+const path = require('path')
 
 function writeFile (jsonData, filename = 'default') {
-  fs.writeFile(`${filename}.json`, JSON.stringify(jsonData), 'utf8', function(err) {
+  const outputPath = path.join(__dirname + '../../../output/')
+  fs.writeFile(`${outputPath}/${filename}.json`, JSON.stringify(jsonData), 'utf8', function(err) {
     if(err) {
       return console.log(err)
     }

@@ -1,4 +1,4 @@
-const { booksScraper, pnaNewsScraper, rapplerNewsScraper } = require('./page-scraper')
+const { booksScraper, pnaNewsScraper, rapplerNewsScraper } = require('./page-scraper-deprecated')
 const fileWriter = require('./file-writer')
 
 async function scrapeBooks (browserInstance) {

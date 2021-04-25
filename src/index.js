@@ -1,10 +1,25 @@
 const browserObject = require('./browser')
-const { scrapeBooksFn, scrapePnaNewsFn, scrapeRapplerNewsFn } = require('./page-controller')
+const scrapeController = require('./controller')
+const {
+  booksContext,
+  philippineNewsAgencyContext,
+  rapplerContext,
+  inquirerContext,
+} = require('./contexts')
 
-//Start the browser and create a browser instance
 let browserInstance = browserObject.startBrowser()
+// const url = "https://www.inquirer.net/search?q=ecommerce#gsc.tab=0&gsc.q=ecommerce&gsc.page=1"
+// const url = "https://www.inquirer.net/search?q=ridesharing#gsc.tab=0&gsc.q=ridesharing&gsc.page=1"
+// const url = "https://www.inquirer.net/search?q=grab#gsc.tab=0&gsc.q=grab&gsc.page=1"
+// const url = "https://www.pna.gov.ph/articles/search?q=ridesharing"
+// const url = "https://www.pna.gov.ph/articles/search?q=ecommerce&c="
+// const url = "https://www.pna.gov.ph/articles/search?q=grab+philippines&c="
+// const url = "https://www.rappler.com/search?q=ridesharing"
+// const url = "https://www.rappler.com/search?q=ecommerce"
+const url = "https://www.rappler.com/search?q=grab"
 
-// Pass the browser instance to the scraper controller
-// scrapeBooksFn(browserInstance)
-// scrapePnaNewsFn(browserInstance)
-scrapeRapplerNewsFn(browserInstance)
+scrapeController({
+  url,
+  browserInstance,
+  context: rapplerContext,
+})
