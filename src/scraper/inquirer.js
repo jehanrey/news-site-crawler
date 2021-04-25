@@ -11,7 +11,7 @@ async function inquirerScraper ({
     let dataObj = {}
     let newPage = await browser.newPage()
     console.log(`navigating to ${link}...`)
-    await newPage.goto(link, {waitUntil: 'load', timeout: 0})
+    await newPage.goto(link, {waitUntil: 'domcontentloaded', timeout: 0})
 
     dataObj["url"] = link
     if (link.includes('libre')) {

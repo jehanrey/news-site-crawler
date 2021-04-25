@@ -20,7 +20,7 @@ const scraper = async ({
   let scrapedData = []
 
   console.log(`Navigating to ${url}...`)
-  await page.goto(url)
+  await page.goto(url, {timeout: 0})
 
   const scraperFn = scraperMap[context]
   const scraperProps = {
