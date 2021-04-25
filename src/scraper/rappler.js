@@ -7,22 +7,24 @@ async function rapplerScraper ({
   await page.waitForSelector('div[data-testid="wrapper"]')
 
   let pagePromise = (link) => new Promise(async (resolve, _reject) => {
+    let skip  = false
     let dataObj = {}
     let newPage = await browser.newPage()
-    await newPage.goto(link)
+    await newPage.goto(link, {waitUntil: 'load', timeout: 0})
 
-    dataObj["title"] = await newPage.$eval(".copy-block > h1", (text) => text.textContent).catch(() => '')
-    dataObj["date"] = await newPage.$eval(".time-header > time", (text) => text.textContent).catch(() => '')
+    dataObj["url"] = link
+    dataObj["title"] = await newPage.$eval(".copy-block > h1", (text) => text.textContent).catch(() => skip = true)
+    dataObj["date"] = await newPage.$eval(".time-header > time", (text) => text.textContent).catch(() => skip = true)
     dataObj["snippet"] = await newPage.$eval('div[class*="ArticleBodyWrapper"] .excerpt p.summary', (text) => {
       return text.textContent.trim()
     }).catch(() => '')
     dataObj["body"] = await newPage.$$eval('div[class*="StyleComponents__ParagraghWrapper"]', (paragraphs) => {
       paragraphs = paragraphs.map((el) => el.querySelector('p').textContent)
       return paragraphs.join(' ')
-    }).catch(() => '')
+    }).catch(() => skip = true)
 
-    resolve(dataObj)
-    counter = counter + 1
+    resolve(skip ? undefined : dataObj)
+    counter = skip ? counter : counter + 1
 
     await newPage.close()
   })
@@ -60,7 +62,7 @@ async function rapplerScraper ({
   await page.close()
 
   return {
-    data: scrapedData,
+    data: scrapedData.filter(Boolean),
     count: counter,
   }
 }
