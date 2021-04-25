@@ -11,30 +11,30 @@ async function inquirerScraper ({
     let dataObj = {}
     let newPage = await browser.newPage()
     console.log(`navigating to ${link}...`)
-    await newPage.goto(link)
+    await newPage.goto(link, {waitUntil: 'domcontentloaded', timeout: 0})
+    // await newPage.waitForSelector('#article_level_wrap').catch(() => skip = true)
 
+    dataObj["url"] = link
     dataObj["title"] = await newPage.$eval("#art-head-group hgroup > h1.entry-title", (text) => text.textContent).catch(() => skip = true)
-    dataObj["date"] = await newPage.$eval("#art-head-group #byline_share div#art_plat", (text) => text.textContent).catch(() => skip = true)
-    // dataObj["snippet"] = await newPage.$eval(".page-content > p", (text) => {
-    //   return text.textContent.split('--')[1] ? text.textContent.split('--')[1].trim() : text.textContent.split('--')[0].trim()
-    // }).catch(async () => {
-    //   dataObj["snippet"] = await newPage.$eval(".page-content > div", (text) => {
-    //     return text.textContent.split('--')[1] ? text.textContent.split('--')[1].trim() : text.textContent.split('--')[0].trim()
-    //   })
-    // })
-    // dataObj["body"] = await newPage.$eval(".page-content", (el) => {
-    //   const childNodes = el.children
-    //   let contents = []
-    //   for (let item of childNodes) {
-    //     if (item.nodeName === 'P' || item.nodeName === 'DIV') {
-    //       contents.push(item.textContent.replace(/(\s\r\n\t|\n|\r|\t|&nbsp;|<br>|<br \/>)/gm, "").trim())
-    //     }
-    //   }
-    //   return contents.join(' ')
-    // })
+    dataObj["date"] = await newPage.$eval("#art-head-group #byline_share div#art_plat", (text) => (
+      text.textContent.split('/')[1].trim()
+    )).catch(() => skip = true)
+    dataObj["snippet"] = await newPage.$eval("#art_body_wrap > #article_content > div:first-child > p:first-of-type", (text) => {
+      return text.textContent.replace(/(\s\r\n\t|\n|\r|\t|&nbsp;|<br>|<br \/>)/gm, "").trim()
+    }).catch(() => '')
+    dataObj["body"] = await newPage.$eval("#art_body_wrap > #article_content > div:first-child", (el) => {
+      const childNodes = el.children
+      let contents = []
+      for (let item of childNodes) {
+        if (item.nodeName === 'P') {
+          contents.push(item.textContent.replace(/(\s\r\n\t|\n|\r|\t|&nbsp;|<br>|<br \/>)/gm, "").trim())
+        }
+      }
+      return contents.join(' ')
+    }).catch(() => skip = true)
 
     resolve(skip ? undefined : dataObj)
-    counter = counter + 1
+    counter = skip ? counter : counter + 1
 
     await newPage.close()
   })
@@ -74,7 +74,7 @@ async function inquirerScraper ({
   await page.close()
 
   return {
-    data: scrapedData,
+    data: scrapedData.filter(Boolean),
     count: counter,
   }
 }

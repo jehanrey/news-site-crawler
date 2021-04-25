@@ -7,10 +7,12 @@ async function philippineNewsAgencyScraper ({
   await page.waitForSelector(".template-pna")
 
   let pagePromise = (link) => new Promise(async (resolve, _reject) => {
+    let skip = false
     let dataObj = {}
     let newPage = await browser.newPage()
-    await newPage.goto(link)
+    await newPage.goto(link, {waitUntil: 'load', timeout: 0})
 
+    dataObj["url"] = link
     dataObj["title"] = await newPage.$eval(".page-header > h1", (text) => text.textContent)
     dataObj["date"] = await newPage.$eval(".page-header .date", (text) => text.textContent)
     dataObj["snippet"] = await newPage.$eval(".page-content > p", (text) => {
@@ -31,8 +33,8 @@ async function philippineNewsAgencyScraper ({
       return contents.join(' ')
     })
 
-    resolve(dataObj)
-    counter = counter + 1
+    resolve(skip ? undefined : dataObj)
+    counter = skip ? counter : counter + 1
 
     await newPage.close()
   })
@@ -69,7 +71,7 @@ async function philippineNewsAgencyScraper ({
   await page.close()
 
   return {
-    data: scrapedData,
+    data: scrapedData.filter(Boolean),
     count: counter,
   }
 }
