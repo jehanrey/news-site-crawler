@@ -1,10 +1,11 @@
 const scraper = require('./scraper')
 const writeFile = require('./utils/file-writer')
 
-async function scrapeController ({ 
+async function scrapeController ({
   url,
   browserInstance,
   context,
+  keyword,
 }) {
   let browser
   try {
@@ -16,7 +17,7 @@ async function scrapeController ({
       context,
     })
     await browser.close()
-    writeFile(data, context)
+    writeFile(data, { context, keyword })
   } catch (err) {
     console.log('Could not resolve the browser instance => ', err)
   }

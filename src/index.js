@@ -17,9 +17,11 @@ let browserInstance = browserObject.startBrowser()
 // const url = "https://www.rappler.com/search?q=ridesharing"
 // const url = "https://www.rappler.com/search?q=ecommerce"
 const url = "https://www.rappler.com/search?q=grab"
+const keyword = 'grab'
 
 scrapeController({
   url,
   browserInstance,
   context: rapplerContext,
+  keyword,
 })
