@@ -41,6 +41,7 @@ async function rapplerScraper ({
   if (loadMoreExists) {
     const loadMoreSelector = 'button[data-testid="load-more-btn"]'
     try { await page.click(loadMoreSelector) } catch (error) {}
+    await page.waitFor(2000); // time for scrolling
     return rapplerScraper({
       browser,
       page,
