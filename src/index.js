@@ -8,13 +8,13 @@ const {
 } = require('./contexts')
 
 let browserInstance = browserObject.startBrowser()
-const url = "https://www.inquirer.net/search?q=online%20selling#gsc.tab=0&gsc.q=online%20selling&gsc.page=1"
-const keyword = 'online+selling'
+const url = 'https://www.rappler.com/?s=grab+food'
+const keyword = 'grab food'
 
 // this is async so you can  actually loop through an array of data
 scrapeController({
   url,
   browserInstance,
-  context: inquirerContext,
+  context: rapplerContext,
   keyword,
 })
