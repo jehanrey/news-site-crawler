@@ -4,23 +4,26 @@ async function rapplerScraper ({
   counter,
   scrapedData,
 }) {
-  await page.waitForSelector('div[data-testid="wrapper"]')
+  await page.waitForSelector('#primary')
+  page.setDefaultNavigationTimeout(0)
 
   let pagePromise = (link) => new Promise(async (resolve, _reject) => {
     let skip  = false
     let dataObj = {}
     let newPage = await browser.newPage()
-    await newPage.goto(link, {waitUntil: 'load', timeout: 0})
+    newPage.setDefaultNavigationTimeout(0)
+    await newPage.goto(link)
+    await newPage.waitForSelector('.article-main-section')
 
     dataObj["url"] = link
-    dataObj["title"] = await newPage.$eval(".copy-block > h1", (text) => text.textContent).catch(() => skip = true)
-    dataObj["date"] = await newPage.$eval(".time-header > time", (text) => text.textContent).catch(() => skip = true)
-    dataObj["snippet"] = await newPage.$eval('div[class*="ArticleBodyWrapper"] .excerpt p.summary', (text) => {
+    dataObj["title"] = await newPage.$eval("h1.post-single__title", (text) => text.textContent).catch(() => skip = true)
+    dataObj["date"] = await newPage.$eval("span.posted-on > time", (text) => text.textContent).catch(() => skip = true)
+    dataObj["snippet"] = await newPage.$eval('div.post-single__summary > em', (text) => {
       return text.textContent.trim()
     }).catch(() => '')
-    dataObj["body"] = await newPage.$$eval('div[class*="StyleComponents__ParagraghWrapper"]', (paragraphs) => {
-      paragraphs = paragraphs.map((el) => el.querySelector('p').textContent)
-      return paragraphs.join(' ')
+    dataObj["body"] = await newPage.$$eval('.post-single__content.entry-content > p', (paragraphs) => {
+      const retVal = paragraphs.map(({ textContent }) => textContent)
+      return retVal.join(' ')
     }).catch(() => skip = true)
 
     resolve(skip ? undefined : dataObj)
@@ -29,17 +32,24 @@ async function rapplerScraper ({
     await newPage.close()
   })
 
+  await page.evaluate(() => {
+    const modal = document.querySelector('.tp-modal')
+    if (modal) modal.parentNode.removeChild(modal)
+    const backdrop = document.querySelector('.tp-backdrop.tp-active')
+    if (backdrop) backdrop.parentNode.removeChild(backdrop)
+  });
+
   let loadMoreExists = false
   let loadMoreButton = ''
   try {
-    loadMoreButton = await page.$eval('button[data-testid="load-more-btn"]', (a) => a.textContent)
+    loadMoreButton = await page.$eval('.pagination', (a) => a.textContent)
     loadMoreExists = !!loadMoreButton
   } catch (err) {
     loadMoreExists = false
   }
 
   if (loadMoreExists) {
-    const loadMoreSelector = 'button[data-testid="load-more-btn"]'
+    const loadMoreSelector = '.pagination__link.pagination__load-more'
     try { await page.click(loadMoreSelector) } catch (error) {}
     await page.waitFor(2000); // time for scrolling
     return rapplerScraper({
@@ -50,8 +60,20 @@ async function rapplerScraper ({
     })
   }
 
-  let urls = await page.$$eval('div[data-testid="child"]', (links) => {
-    links = links.map((el) => el.querySelector(".related-content-item").href)
+  let urls = await page.$$eval('.post.type-post.status-publish', (links) => {
+    // let retVal = links.filter((el) => {
+    //   const stringVal = el.querySelector('h2 > a').textContent
+    //   const keywords = ['grab', 'asia', 'news', 'philippines']
+    //   let conditionMet = false
+    //   keywords.forEach((word) => {
+    //     if (stringVal.toLowerCase().includes(word)) {
+    //       conditionMet = true
+    //     }
+    //   })
+    //   return conditionMet
+    // })
+    // return retVal.map((el) => el.querySelector("h2 > a").href)
+    links = links.map((el) => el.querySelector("h2 > a").href)
     return links
   })
 
